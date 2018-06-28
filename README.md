@@ -1,5 +1,5 @@
 # Azure-DSC-Automation
 
-1. Step 1
+This is an example of 
 
 1. dd
