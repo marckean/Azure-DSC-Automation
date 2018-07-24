@@ -11,9 +11,10 @@
       }
     },
     "adminPassword": {
-      "type": "securestring",
+      "type": "string",
+      "defaultValue": "",
       "metadata": {
-        "description": "Password for the Virtual Machine."
+        "description": "Admin password pulled as a secret from Azure's Key Vault"
       }
     },
     "timeZone": {
@@ -782,6 +783,11 @@
                   "Name": "ActionAfterReboot",
                   "Value": "ContinueConfiguration",
                   "TypeName": "System.String"
+                },
+                {
+                  "Name": "RefreshFrequencyMins",
+                  "Value": "30",
+                  "TypeName": "System.int"
                 }
               ]
             }
