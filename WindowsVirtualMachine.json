@@ -108,11 +108,14 @@
   },
   "variables": {
     "virtualNetworkName": "eJukeNetwork",
-    "existingVirtualNetworkResourceGroup": "eJukeCommon",
-    "SubscriptionID": "[subscription().subscriptionId]",
-    "vnetId": "[resourceId(variables('existingVirtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+    "addressPrefix": "192.168.0.0/16",
+    "subnet1Prefix": "192.168.111.0/24",
+    "subnet1Name": "First",
+    "subnet2Prefix": "192.168.112.0/24",
+    "subnet2Name": "Second",
+    "subnet1Ref": "[resourceId(parameters('CrossResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnet1Name'))]",
+    "subnet2Ref": "[resourceId(parameters('CrossResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnet2Name'))]",
     "AutomationAccountId": "[resourceId(parameters('automationAccountRG'), 'Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
-    "subnetRef": "[concat(variables('vnetId'), '/subnets/first')]",
     "vmName": "[concat('eJukebox', parameters('JukeboxID'))]",
     "OSDiskName": "[concat('OsDisk', variables('vmName'))]",
     "imagePublisher": "MicrosoftWindowsServer",
@@ -274,6 +277,54 @@
       "dependsOn": []
     },
     {
+      "apiVersion": "2017-08-01",
+      "name": "nestedTemplate",
+      "type": "Microsoft.Resources/deployments",
+      "resourceGroup": "SharedResources",
+      "properties": {
+          "mode": "Incremental",
+          "template": {
+              "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {},
+              "variables": {},
+              "resources": [
+                {
+                  "apiVersion": "2016-03-30",
+                  "type": "Microsoft.Network/virtualNetworks",
+                  "name": "[variables('virtualNetworkName')]",
+                  "location": "[resourceGroup().location]",
+                  "tags": {
+                    "displayName": "virtualNetwork"
+                  },
+                  "properties": {
+                    "addressSpace": {
+                      "addressPrefixes": [
+                        "[variables('addressPrefix')]"
+                      ]
+                    },
+                    "subnets": [
+                      {
+                        "name": "[variables('subnet1Name')]",
+                        "properties": {
+                          "addressPrefix": "[variables('subnet1Prefix')]"
+                        }
+                      },
+                      {
+                        "name": "[variables('subnet2Name')]",
+                        "properties": {
+                          "addressPrefix": "[variables('subnet2Prefix')]"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+          },
+          "parameters": {}
+      }
+    },
+    {
       "apiVersion": "2016-03-30",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('nicName')]",
@@ -291,7 +342,7 @@
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
               },
               "subnet": {
-                "id": "[variables('subnetRef')]"
+                "id": "[variables('subnet1Ref')]"
               }
             }
           }
@@ -302,7 +353,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('NetworkSecurityGroupName'))]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('NetworkSecurityGroupName'))]",
+        "Microsoft.Resources/deployments/nestedTemplate"
       ]
     },
     {
