@@ -11,7 +11,7 @@ Basically
 ### This Repo:
 - leverages the **DSC extension** only to register the VM with the **Azure Automation** pull server in order for DSC to run the configuration on the VM
 
-### [My other Repo](https://github.com/marckean/Azure-DSC-Automation)
+### [My other Repo](https://github.com/marckean/Azure-DSC-Template)
 - leverages the **DSC extension** to run the configuration on the VM. The JSON template also feeds parameter values into a DSC configuration script via the DSC extension
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmarckean%2FAzure-DSC-Automation%2Fmaster%2FWindowsVirtualMachine.json" target="_blank">
